@@ -18,7 +18,7 @@ import { fileURLToPath } from 'url';
 
 // Cargar variables de entorno
 dotenv.config();
-
+ 
 // Conectar a la base de datos
 connectDB();
 
