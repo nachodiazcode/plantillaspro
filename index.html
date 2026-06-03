@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>InBody HUD - Seguimiento Corporal</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700;800&family=Rajdhani:wght@500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <main class="hud-shell" aria-label="Panel de composición corporal estilo interfaz Ironman">
+    <header class="hud-header">
+      <button class="nav-button" type="button" aria-label="Volver"><span aria-hidden="true">‹</span></button>
+      <div class="circuit-line" aria-hidden="true"></div>
+      <div class="header-actions">
+        <button class="icon-button" id="toggleEdit" type="button" aria-label="Mostrar u ocultar editor">◉</button>
+        <button class="exit-button" id="resetData" type="button">SALIR</button>
+      </div>
+    </header>
+
+    <section class="editor-panel hidden" id="editorPanel" aria-label="Editor de mediciones persistentes">
+      <div>
+        <p class="eyebrow">Bitácora dinámica</p>
+        <h1>Seguimiento InBody</h1>
+        <p>Actualiza los valores cuando tengas una nueva medición. La información queda guardada en <strong>localStorage</strong> de este navegador.</p>
+      </div>
+      <form id="metricsForm" class="metrics-form">
+        <label>Fecha <input name="date" type="date" /></label>
+        <label>Peso (kg) <input name="weight" type="number" step="0.1" /></label>
+        <label>IMC <input name="bmi" type="number" step="0.1" /></label>
+        <label>Masa muscular (kg) <input name="muscle" type="number" step="0.1" /></label>
+        <label>Metabolismo basal <input name="basal" type="number" step="0.1" /></label>
+        <label>Masa libre de grasa (kg) <input name="fatFree" type="number" step="0.1" /></label>
+        <label>Grasa corporal (%) <input name="bodyFat" type="number" step="0.1" /></label>
+        <label>Agua (L) <input name="water" type="number" step="0.1" /></label>
+        <label>Grasa visceral <input name="visceral" type="number" step="0.1" /></label>
+        <fieldset class="segment-editor">
+          <legend>Segmentos: masa libre de grasa</legend>
+          <label>Brazo izq. <input name="lean.leftArm" type="number" step="0.01" /></label>
+          <label>Brazo der. <input name="lean.rightArm" type="number" step="0.01" /></label>
+          <label>Tronco <input name="lean.trunk" type="number" step="0.01" /></label>
+          <label>Pierna izq. <input name="lean.leftLeg" type="number" step="0.01" /></label>
+          <label>Pierna der. <input name="lean.rightLeg" type="number" step="0.01" /></label>
+        </fieldset>
+        <fieldset class="segment-editor">
+          <legend>Segmentos: grasa segmental</legend>
+          <label>Brazo izq. <input name="fat.leftArm" type="number" step="0.01" /></label>
+          <label>Brazo der. <input name="fat.rightArm" type="number" step="0.01" /></label>
+          <label>Tronco <input name="fat.trunk" type="number" step="0.01" /></label>
+          <label>Pierna izq. <input name="fat.leftLeg" type="number" step="0.01" /></label>
+          <label>Pierna der. <input name="fat.rightLeg" type="number" step="0.01" /></label>
+        </fieldset>
+        <button type="submit">Guardar medición</button>
+      </form>
+      <div class="history-panel" id="historyPanel" aria-live="polite"></div>
+    </section>
+
+    <section class="dashboard-grid">
+      <div class="metric-grid" id="metricCards" aria-live="polite"></div>
+
+      <aside class="top-stack">
+        <article class="summary-card">
+          <span class="summary-icon muscle">💪</span>
+          <div>
+            <h2>Masa muscular esquelética</h2>
+            <p><strong data-value="muscle">31.3</strong><span>kg</span></p>
+          </div>
+        </article>
+        <article class="summary-card">
+          <span class="summary-icon fire">🔥</span>
+          <div>
+            <h2>Metabolismo basal</h2>
+            <p><strong data-value="basal">2085.5</strong><span>kcal</span></p>
+          </div>
+        </article>
+      </aside>
+
+      <section class="body-panels">
+        <article class="body-card" id="leanPanel">
+          <h2>Masa libre de grasa</h2>
+          <div class="body-stage">
+            <div class="segment left top"><span>Miembros superiores izquierdos</span><strong data-segment="lean.leftArm">3.36</strong></div>
+            <div class="segment right top"><span>Miembros superiores derechos</span><strong data-segment="lean.rightArm">3.36</strong></div>
+            <div class="segment left bottom"><span>Miembros inferiores izquierdos</span><strong data-segment="lean.leftLeg">9.68</strong></div>
+            <div class="segment right bottom"><span>Miembros inferiores derechos</span><strong data-segment="lean.rightLeg">9.73</strong></div>
+            <div class="human-figure" aria-hidden="true">
+              <span class="head"></span><span class="torso"></span><span class="arm arm-l"></span><span class="arm arm-r"></span><span class="leg leg-l"></span><span class="leg leg-r"></span>
+              <i class="joint shoulder-l"></i><i class="joint shoulder-r"></i><i class="joint knee-l"></i><i class="joint knee-r"></i>
+            </div>
+            <div class="trunk-card">Tronco<strong data-segment="lean.trunk">26.34</strong></div>
+          </div>
+        </article>
+
+        <article class="body-card" id="fatPanel">
+          <h2>Grasa segmental</h2>
+          <div class="body-stage">
+            <div class="segment left top"><span>Miembros superiores izquierdos</span><strong data-segment="fat.leftArm">2.17</strong></div>
+            <div class="segment right top"><span>Miembros superiores derechos</span><strong data-segment="fat.rightArm">2.17</strong></div>
+            <div class="segment left bottom"><span>Miembros inferiores izquierdos</span><strong data-segment="fat.leftLeg">5.36</strong></div>
+            <div class="segment right bottom"><span>Miembros inferiores derechos</span><strong data-segment="fat.rightLeg">5.32</strong></div>
+            <div class="human-figure" aria-hidden="true">
+              <span class="head"></span><span class="torso"></span><span class="arm arm-l"></span><span class="arm arm-r"></span><span class="leg leg-l"></span><span class="leg leg-r"></span>
+              <i class="joint shoulder-l"></i><i class="joint shoulder-r"></i><i class="joint knee-l"></i><i class="joint knee-r"></i>
+            </div>
+            <div class="trunk-card">Tronco<strong data-segment="fat.trunk">26.82</strong></div>
+          </div>
+        </article>
+      </section>
+    </section>
+
+    <footer class="hud-footer" aria-hidden="true"><span></span><span></span><span></span></footer>
+  </main>
+
+  <script src="script.js"></script>
+</body>
+</html>
